@@ -34,6 +34,10 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'simpleuser',
     'chats',
+    'wilaya',
+    'commune',
+    'announecements',
+    'module',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

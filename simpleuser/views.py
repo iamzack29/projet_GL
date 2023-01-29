@@ -3,12 +3,42 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 
 from django.http import HttpResponse
+import announecements
+from announecements.models import annonce
+
+from module.models import matiere
 from .forms import RegistrationForm , AccountAuthenticationForm 
 from django.contrib.auth import login, authenticate, logout
 
 # Create your views here.
 def home(request):
-    return render(request,'index.html')
+    if not request.user.is_authenticated: 
+        return redirect("simpleuser:signin")
+    Owner = request.user
+    list = matiere.objects.all()
+    list2 = annonce.objects.all()
+    print(list)
+    if request.POST:
+        title = request.POST.get("title")
+        print(title)
+        description = request.POST.get("description")
+        print(description)
+        print(Owner,title,description)
+        print(request.POST.get("module"))
+        if title and description:
+            module = matiere.objects.get(nom=request.POST.get("module"))
+            req = annonce.objects.create(owner=Owner,module=module,title=title ,description=description )
+            req.save
+            return redirect("simpleuser:home")
+        else:
+            print("error")
+    
+    return render(request,'index.html',{'list':list,'list2':list2})
+
+def logout_view(request):
+    logout(request)
+    return redirect('simpleuser:signin')
+
 def signup(request):
     context = {}
     if request.POST:
@@ -19,7 +49,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             account = authenticate(email=email, password=raw_password)
             login(request, account)
-            return redirect('account:home')
+            return redirect('simpleuser:home')
         else:
             context['form'] = form
 
@@ -27,14 +57,14 @@ def signup(request):
     else:
         form = RegistrationForm()
         context['form'] = form
-    return render(request, 'account/signup.html', context)
+    return render(request, 'signup.html', context)
 
 
 def login_view(request):
     context = {}
     user = request.user
     if user.is_authenticated: 
-        return redirect("account:home")
+        return redirect("simpleuser:home")
 
     if request.POST:
         form = AccountAuthenticationForm(request.POST)
@@ -47,7 +77,7 @@ def login_view(request):
 
             if user:
                 login(request, user)
-                return redirect("account:home")
+                return redirect("simpleuser:home")
         else:
             print("form isnt valid")
 
@@ -55,3 +85,11 @@ def login_view(request):
         form = AccountAuthenticationForm()
         print("form isnt request psot")
     context['login_form'] = form
+
+    # print(form)
+    return render(request, "login.html", context)
+
+
+
+def profile_view(request):
+    return render(request, "profile.html")

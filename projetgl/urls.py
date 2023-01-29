@@ -22,5 +22,6 @@ from simpleuser.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("simpleuser.urls")),
+    path('', include("announecements.urls")),
 
 ]
